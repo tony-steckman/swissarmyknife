@@ -14,9 +14,11 @@ class HelloWorldTool(Tool):
             author="Tony Steckman"
         )
         self.add_output("greeting")
-        greeting = "Hello, World!"
-        self.output_values["greeting"] = greeting
+        self.add_optional_input("name")
 
     def run(self):
         """Execute the tool's main functionality."""
+        name = self.input_values.get("name", "World")
+        greeting = f"Hello, {name}!"
+        self.output_values['greeting'] = greeting
         return self.output_values['greeting']

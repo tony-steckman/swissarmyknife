@@ -151,5 +151,7 @@ class Tool:
     def __repr__(self):
         return (
             f"Tool(name={self.name}, description={self.description}, "
-            f"version={self.version}, author={self.author})"
+            f"version={self.version}, author={self.author}, "
+            f"required_inputs={self.required_inputs}, "
+            f"optional_inputs={self.optional_inputs}, outputs={self.outputs}"
         )
