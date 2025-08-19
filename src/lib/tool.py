@@ -2,6 +2,9 @@
 Define a class representing a tool with metadata, including inputs and outputs.
 """
 
+
+import keyring
+
 from src.lib.sqlite import Database
 
 
@@ -24,6 +27,8 @@ class Tool:
         self.configuration_parameters = []
         # Dictionary to hold configurations for the tool
         self.configurations = {}
+        # Dictionary to hold credentials for the tool
+        self.credentials = {}
 
     def add_required_input(self, input_name):
         """
@@ -139,6 +144,34 @@ class Tool:
             db.commit()
         finally:
             db.close()
+
+    def add_credentials(self, username, password):
+        """
+        Adds credentials for the tool.
+
+        :param username: Username for the credentials
+        :param password: Password for the credentials
+        """
+        self.credentials['username'] = username
+        keyring.set_password(
+            self.name, username, password
+        )
+
+    def get_credentials(self):
+        """
+        Retrieves credentials for the tool.
+
+        :param username: Username for which to retrieve the password
+        :return: Password for the given username
+        """
+        username = self.credentials.get('username')
+        if not username:
+            raise ValueError("No username set for credentials.")
+        # Retrieve the password from the keyring
+        self.credentials['password'] = keyring.get_password(
+            self.name, username
+            )
+        return self.credentials
 
     def run(self):
         """

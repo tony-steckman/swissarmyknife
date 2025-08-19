@@ -57,6 +57,12 @@ def prompt(loaded_tools=None):
             print(f"Tool '{command[1]}' loaded successfully.")
         except (ImportError, AttributeError, TypeError) as e:
             print(f"Error loading tool '{command[1]}': {e}")
+        try:
+            tool_instance.load_configuration()
+            if tool_instance.configurations:
+                print(f"Configuration for '{command[1]}' loaded successfully.")
+        except (IOError, OSError) as e:
+            print(f"Error loading configuration for '{command[1]}': {e}")
     elif command[0] == "run" and len(command) > 1:
         if command[1] not in loaded_tools:
             print(
