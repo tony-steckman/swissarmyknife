@@ -2,6 +2,7 @@
 
 import importlib
 import inspect
+import os
 import pkgutil
 import sys
 
@@ -139,9 +140,17 @@ def prompt(loaded_tools=None):
 def list_tools():
     """List all available tools in the src.tools package."""
     tools = []
-    package = importlib.import_module("src.tools")
-    for _, module_name, _ in pkgutil.iter_modules(package.__path__):
-        tools.append(module_name)
+    subfolders = [f.path for f in os.scandir("src/tools") if f.is_dir()]
+    for folder in subfolders:
+        folder_name = os.path.basename(folder)
+        package = importlib.import_module(f"src.tools.{folder_name}")
+        for _, module_name, _ in pkgutil.iter_modules(package.__path__):
+            tools.append(f"{os.path.basename(folder)}.{module_name}")
+    # Also include tools in the main src.tools package
+    if "src.tools" in sys.modules:
+        package = importlib.import_module("src.tools")
+        for _, module_name, _ in pkgutil.iter_modules(package.__path__):
+            tools.append(module_name)
     return tools
 
 
