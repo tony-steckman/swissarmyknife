@@ -88,6 +88,8 @@ def prompt(loaded_tools=None):
                     f"Configuration for '{tool_instance.name}': "
                     f"{tool_instance.configurations}"
                 )
+            elif command[2] == "outputs":
+                print("Outputs:", tool_instance.output_values)
             else:
                 print(f"Unknown input type: {command[2]}. "
                       f"Available inputs: inputs, configs.")
@@ -96,12 +98,12 @@ def prompt(loaded_tools=None):
             print(f"Description: {tool_instance.description}")
             print(f"Version: {tool_instance.version}")
             print(f"Author: {tool_instance.author}")
-            print(f"Required Inputs: {tool_instance.required_inputs}")
-            print(f"Optional Inputs: {tool_instance.optional_inputs}")
-            print(
-                f"Configuration Parameters: "
-                f"{tool_instance.configuration_parameters}"
-            )
+            print("Required Inputs:", tool_instance.required_inputs)
+            print("Optional Inputs:", tool_instance.optional_inputs)
+            print("Configuration Parameters:",
+                  tool_instance.configuration_parameters)
+            print("Credentials Required:", tool_instance.credentials_required)
+            print("API Key Required:", tool_instance.api_key_required)
         elif command[1] == "run":
             result = run_tool(tool_instance)
             print(f"Result from '{tool_instance.name}': {result}")
@@ -109,6 +111,9 @@ def prompt(loaded_tools=None):
             if command[2].startswith("config"):
                 tool_instance.save_configuration()
                 print(f"Configuration for '{tool_instance.name}' saved.")
+            elif command[2] == "credentials":
+                tool_instance.save_credentials()
+                print(f"Credentials for '{tool_instance.name}' saved.")
             else:
                 print(f"Unknown save type: {command[2]}. "
                       f"Available types: configs.")
@@ -116,17 +121,45 @@ def prompt(loaded_tools=None):
             if command[2].startswith("config"):
                 tool_instance.load_configuration()
                 print(f"Configuration for '{tool_instance.name}' loaded.")
+            elif command[2] == "credentials":
+                tool_instance.load_credentials()
+                print(f"Credentials for '{tool_instance.name}' loaded.")
             else:
                 print(f"Unknown load type: {command[2]}. "
                       f"Available types: configs.")
         elif command[1] == "set" and len(command) > 3:
             input_name = command[2]
             value = " ".join(command[3:])
-            try:
-                tool_instance.set_input_value(input_name, value)
-                print(f"Input '{input_name}' set to '{value}'.")
-            except ValueError as e:
-                print(e)
+            if input_name == "api_key":
+                try:
+                    tool_instance.set_api_key(value)
+                    print(f"API key set to '{value}'.")
+                except ValueError as e:
+                    print(e)
+            elif input_name == "credentials":
+                credentials = {
+                    'username': command[3],
+                    'password': command[4]
+                }
+                try:
+                    tool_instance.add_credentials(**credentials)
+                    print(
+                        f"Credentials added for '{credentials['username']}'."
+                    )
+                except ValueError as e:
+                    print(e)
+            elif input_name == "help":
+                print("Available commands:")
+                print("  - api_key: Set the API key for the tool.")
+                print("  - credentials: Set the credentials for the tool:"
+                      f"  {tool_instance} set <username> <password>")
+                print("  - <input_name>: Set the value for a specific input.")
+            else:
+                try:
+                    tool_instance.set_input_value(input_name, value)
+                    print(f"Input '{input_name}' set to '{value}'.")
+                except ValueError as e:
+                    print(e)
         else:
             print(f"Unknown command for tool '{command[0]}': {command[1]}. "
                   f"Available commands: get, info, run, set.")

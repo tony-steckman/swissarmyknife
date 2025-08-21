@@ -29,6 +29,9 @@ class Tool:
         self.configurations = {}
         # Dictionary to hold credentials for the tool
         self.credentials = {}
+        # Are credentials required for the tool?
+        self.credentials_required = False
+        self.api_key_required = False
 
     def add_required_input(self, input_name):
         """
@@ -170,7 +173,7 @@ class Tool:
         # Retrieve the password from the keyring
         self.credentials['password'] = keyring.get_password(
             self.name, username
-            )
+        )
         return self.credentials
 
     def run(self):
@@ -180,6 +183,14 @@ class Tool:
         tool logic.
         """
         raise NotImplementedError("Subclasses must implement the run method.")
+
+    def get_outputs(self):
+        """
+        Returns the outputs produced by the tool.
+
+        :return: Dictionary of output values
+        """
+        return self.output_values
 
     def __repr__(self):
         return (
