@@ -12,6 +12,7 @@ keyring            25.6.0
 more-itertools     10.7.0
 OTXv2              1.5.12
 pip                25.2
+prompt_toolkit     3.0.51
 python-dateutil    2.9.0.post0
 pytz               2025.2
 requests           2.25.1
@@ -19,5 +20,6 @@ setuptools         50.3.2
 six                1.17.0
 types-setuptools   80.9.0.20250809
 urllib3            1.26.6
+wcwidth            0.2.13
 wheel              0.35.1
 zipp               3.23.0

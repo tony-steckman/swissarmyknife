@@ -6,6 +6,11 @@ import os
 import pkgutil
 import sys
 
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.completion import WordCompleter
+
+
 from src.lib.tool import Tool
 
 
@@ -34,11 +39,22 @@ def run_tool(tool_instance):
     return tool_instance.run()
 
 
-def prompt(loaded_tools=None):
+def input_handler(session, loaded_tools=None):
     """Return the command prompt for the Swiss Army Knife application."""
     if not loaded_tools:
         loaded_tools = {}
-    command = input("swiisarmyknife> ").split(" ")
+    auto_completions = list(list_tools())
+    auto_completions.extend([
+        'load', 'run', 'exit', 'info', 'set', 'get', 'help'
+    ])
+    for tool in loaded_tools.keys():
+        auto_completions.extend(loaded_tools[tool].required_inputs)
+        auto_completions.extend(loaded_tools[tool].optional_inputs)
+    command = session.prompt(
+        ("swiisarmyknife> "),
+        completer=WordCompleter(auto_completions),
+        complete_while_typing=False
+    ).split(" ")
     if command[0] == "list":
         if len(command) == 1 or command[1] == "tools":
             tools = list_tools()
@@ -167,7 +183,7 @@ def prompt(loaded_tools=None):
         print(f"Unknown command: {command[0]}. "
               f"Type 'help' for available commands.")
 
-    prompt(loaded_tools)
+    input_handler(session, loaded_tools)
 
 
 def list_tools():
@@ -190,7 +206,8 @@ def list_tools():
 def main():
     """Main function to run the Swiss Army Knife application."""
     print("Welcome to the Swiss Army Knife application!")
-    prompt()
+    session = PromptSession(history=FileHistory(".history"))
+    input_handler(session)
 
 
 if __name__ == "__main__":
